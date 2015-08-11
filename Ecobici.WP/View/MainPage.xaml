@@ -1,0 +1,287 @@
+﻿<Page x:Class="Ecobici.WP.View.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:maps="using:Windows.UI.Xaml.Controls.Maps"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:media="using:Microsoft.Xaml.Interactions.Media"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+      DataContext="{Binding VmMainPage,
+                            Source={StaticResource VmLocator}}"
+      mc:Ignorable="d">
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton Command="{Binding PhoneCallCommand}"
+                          Icon="Phone"
+                          Label="Emergencía" />
+            <AppBarButton Command="{Binding StartChronometerCommand}"
+                          Icon="{Binding ChronometerType,
+                                         Converter={StaticResource ChronometerTypeToImageConverter}}"
+                          Label="{Binding ChronometerType,
+                                          Converter={StaticResource ChronometerTypeToLabelConverter}}" />
+        </CommandBar>
+    </Page.BottomAppBar>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2" />
+            <RowDefinition Height="15*" />
+            <RowDefinition Height="82*" />
+        </Grid.RowDefinitions>
+
+        <ProgressBar Grid.Row="0"
+                     Height="10"
+                     IsIndeterminate="{Binding IsBusy}"
+                     Visibility="{Binding IsBusy,
+                                          Converter={StaticResource BoolToVisibilityConverter}}" />
+
+        <Grid Grid.Row="1">
+            <Grid DataContext="{Binding Chronometer}" Style="{StaticResource GridChronometerStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40*" />
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="40*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock FontWeight="{Binding Converter={StaticResource TimeToFontWeightConverter}}"
+                           Foreground="{Binding Converter={StaticResource TimeToColorConverter}}"
+                           Style="{StaticResource ChronometerStyle}"
+                           Text="{Binding Minutes,
+                                          Converter={StaticResource NumberToStringConverter}}" />
+                <TextBlock Grid.Column="1"
+                           FontWeight="{Binding Converter={StaticResource TimeToFontWeightConverter}}"
+                           Foreground="{Binding Converter={StaticResource TimeToColorConverter}}"
+                           Style="{StaticResource ChronometerStyle}"
+                           Text=":" />
+                <TextBlock Grid.Column="2"
+                           FontWeight="{Binding Converter={StaticResource TimeToFontWeightConverter}}"
+                           Foreground="{Binding Converter={StaticResource TimeToColorConverter}}"
+                           Style="{StaticResource ChronometerStyle}"
+                           Text="{Binding Seconds,
+                                          Converter={StaticResource NumberToStringConverter}}" />
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1" Visibility="{Binding ChronometerType, Converter={StaticResource ReverseChronometerTypeToVisibilityConverter}}" />
+        <Grid Grid.Row="2">
+            <maps:MapControl Center="{Binding CurrentGeopoint,
+                                              Mode=TwoWay}"
+                             CenterChanged="MapControl_OnCenterChanged"
+                             IsTextScaleFactorEnabled="True"
+                             MapServiceToken="dsw41sCBY0tDtH9n9NFwkQ"
+                             ZoomLevel="{Binding ZoomLevel,
+                                                 Mode=TwoWay}">
+                <maps:MapItemsControl ItemsSource="{Binding MapItems}">
+                    <maps:MapItemsControl.ItemTemplate>
+                        <DataTemplate x:Key="MapItemTemplate">
+                            <Grid Width="Auto" Height="Auto">
+                                <Grid.Resources>
+                                    <Storyboard x:Name="CurrentPositionStoryBoard"
+                                                AutoReverse="True"
+                                                RepeatBehavior="Forever">
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="path" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.Rotation)">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="0" />
+                                            <EasingDoubleKeyFrame KeyTime="0:0:1" Value="180" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </Grid.Resources>
+
+                                <Grid Name="GridStation" PointerPressed="UIElement_OnPointerPressed">
+                                    <Grid.Resources>
+                                        <Storyboard x:Name="GridStationLogoHideItem" AutoReverse="False">
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GridStationLogoDataItem" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Visible</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:1">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Collapsed</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                        <Storyboard x:Name="GridStationLogoShowItem" AutoReverse="False">
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GridStationLogoDataItem" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Collapsed</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:1">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Visible</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                        <Storyboard x:Name="GridStationInfoHideItem">
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GridStationInfoDataItem" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Visible</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:1">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Collapsed</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                        <Storyboard x:Name="GridStationInfoShowItem">
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="GridStationInfoDataItem" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Collapsed</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:1">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Visible</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </Grid.Resources>
+
+                                    <Grid x:Name="GridStationLogoDataItem"
+                                          Visibility="{Binding ItemType,
+                                                               Converter={StaticResource ItemTypeToVisibilityConverter}}"
+                                          maps:MapControl.Location="{Binding Geopoint}"
+                                          maps:MapControl.NormalizedAnchorPoint="{Binding Geopoint.Position}">
+
+                                        <Path Width="40"
+                                              Height="50"
+                                              Data="M93,0 C144.358,-3E-06 186,44.7362 186,99.9364 C186,155.12 93,277 93,277 C93,277 0,155.12 0,99.9364 C0,44.7362 41.6302,-3E-06 93,0 z"
+                                              Fill="LimeGreen"
+                                              Stretch="Uniform"
+                                              UseLayoutRounding="False">
+                                            <Path.RenderTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform Angle="0" />
+                                                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                                                </TransformGroup>
+                                            </Path.RenderTransform>
+                                        </Path>
+
+                                        <Path Width="24"
+                                              Height="24"
+                                              Margin="14.708,6.375,17.291,25.625"
+                                              Data="M51.735994,36.841105C47.965998,36.841105 44.900002,39.912158 44.900002,43.683451 44.900002,47.454749 47.965998,50.515799 51.735994,50.515799 55.504992,50.515799 58.570986,47.454749 58.570986,43.683451 58.570986,39.912158 55.504992,36.841105 51.735994,36.841105z M12.265995,36.841105C8.4959993,36.841105 5.4300022,39.912158 5.4300022,43.683451 5.4300022,47.454749 8.4959993,50.515799 12.265995,50.515799 16.034992,50.515799 19.101989,47.454749 19.101988,43.683451 19.101989,39.912158 16.034992,36.841105 12.265995,36.841105z M51.735994,33.439936C57.379988,33.439936 61.973986,38.031514 61.973986,43.683451 61.973986,49.325388 57.379988,53.916964 51.735994,53.916964 46.091,53.916964 41.497004,49.325388 41.497004,43.683451 41.497004,38.031514 46.091,33.439936 51.735994,33.439936z M12.265995,33.439936C17.91099,33.439936 22.503985,38.031514 22.503985,43.683451 22.503985,49.325388 17.91099,53.916964 12.265995,53.916964 6.6210012,53.916964 2.0270061,49.325388 2.0270061,43.683451 2.0270061,38.031514 6.6210012,33.439936 12.265995,33.439936z M51.736364,27.99001C57.075438,27.99001 61.815504,30.489169 63.80953,34.357869 64.241537,35.187588 63.91353,36.217242 63.079519,36.647099 62.829515,36.777054 62.563513,36.837035 62.300508,36.837035 61.6835,36.837035 61.089491,36.497149 60.787489,35.917344 59.390471,33.208254 55.754419,31.398863 51.736364,31.398863 47.718309,31.398863 44.080259,33.208254 42.683239,35.917344 42.254234,36.747065 41.227219,37.076954 40.392208,36.647099 39.557196,36.217242 39.228191,35.187588 39.660198,34.357869 41.656225,30.489169 46.39529,27.99001 51.736364,27.99001z M12.266041,27.99001C17.124197,27.99001 21.540339,30.079308 23.795412,33.438178 23.995418,33.728079 24.177423,34.037976 24.341429,34.357869 24.772443,35.187588 24.443432,36.217242 23.607405,36.647099 22.774379,37.076954 21.745345,36.747065 21.316331,35.917344 21.213328,35.717412 21.098325,35.517478 20.971321,35.327542 19.365269,32.938345 15.947159,31.398863 12.266041,31.398863 8.49792,31.398863 5.0468102,32.988329 3.476759,35.457499 3.3817558,35.607447 3.2937527,35.757397 3.2127514,35.917344 2.9107399,36.507145 2.3157215,36.837035 1.6997013,36.837035 1.4366932,36.837035 1.1696854,36.777054 0.92067719,36.647099 0.08564949,36.217242 -0.24135971,35.187588 0.19065285,34.357869 0.31665802,34.107953 0.45466232,33.868033 0.60666656,33.628113 2.8197384,30.149283 7.2868814,27.99001 12.266041,27.99001z M37.054246,7.3806392C38.27323,7.3606203 39.49996,7.8055718 40.445442,8.7204971 40.704443,8.9704835 40.92145,9.2404877 41.112427,9.5305109L41.382442,9.8504391 46.66036,17.610007 53.772272,16.03014C55.237249,15.71009 56.694231,16.630082 57.021254,18.099968 57.348246,19.559968 56.423239,21.019846 54.955271,21.339775L46.041382,23.329773C45.844393,23.369689 45.646397,23.389706 45.449377,23.389706 44.560411,23.389706 43.7124,22.959677 43.199406,22.199833L39.412466,16.64009 30.18959,26.179587 35.789495,31.349215C36.629512,32.129199,36.895499,33.349101,36.452512,34.39909L31.459563,46.318453 34.052517,50.208125C34.885515,51.458056 34.548513,53.15803 33.297552,53.98794 32.833538,54.29798 32.308551,54.447997 31.790552,54.447997 30.910559,54.447997 30.047593,54.01797 29.522575,53.227973L26.120639,48.128287C25.613627,47.368323,25.522625,46.408415,25.874641,45.568499L30.694558,34.059144 23.013654,26.95945 22.896682,26.869488 22.837661,26.799548 22.64168,26.619503C22.296683,26.299574 22.064691,25.909583 21.92468,25.489563 21.090705,23.749672 21.361697,21.599769 22.782669,20.129882L33.709535,8.8305988C34.624028,7.8856454,35.835263,7.4006571,37.054246,7.3806392z M46.321495,0C49.268774,0 51.658001,2.3902144 51.658001,5.3404782 51.658001,8.280742 49.268774,10.670956 46.321495,10.670956 43.375217,10.670956 40.985991,8.280742 40.985991,5.3404782 40.985991,2.3902144 43.375217,0 46.321495,0z"
+                                              Fill="{Binding Bikes,
+                                                             Converter={StaticResource StockToFillConverter}}"
+                                              Stretch="Uniform"
+                                              UseLayoutRounding="False">
+
+                                            <Path.RenderTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform Angle="0" />
+                                                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                                                </TransformGroup>
+                                            </Path.RenderTransform>
+                                        </Path>
+
+                                    </Grid>
+
+                                    <Canvas x:Name="GridStationInfoDataItem"
+                                            Visibility="Collapsed"
+                                            maps:MapControl.Location="{Binding Geopoint}"
+                                            maps:MapControl.NormalizedAnchorPoint="{Binding Geopoint.Position}">
+                                        <Path Width="120"
+                                              Height="55"
+                                              Data="M103.743,0 C107.128,0 109.867,0.844137 109.867,1.88704 L109.867,24.5257 C109.867,25.5671 107.128,26.4128 103.743,26.4128 L35.8248,25.9676 L28.058,32.928 L21.5969,25.8324 C21.5969,25.8324 0,25.7845 0,24.7431 L0,2.10437 C0,1.06159 2.74363,0.217457 6.1247,0.217457 z"
+                                              Fill="Blue"
+                                              RenderTransformOrigin="0.5,0.5"
+                                              Stretch="Fill"
+                                              UseLayoutRounding="False">
+                                            <Path.RenderTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform Angle="0" />
+                                                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                                                </TransformGroup>
+                                            </Path.RenderTransform>
+                                        </Path>
+                                        <StackPanel Canvas.Top="0"
+                                                    Margin="5 0 0 0"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+
+                                            <StackPanel Orientation="Horizontal" RenderTransformOrigin="0.5,0.5">
+                                                <Path Width="24"
+                                                      Height="24"
+                                                      Data="M51.735994,36.841105C47.965998,36.841105 44.900002,39.912158 44.900002,43.683451 44.900002,47.454749 47.965998,50.515799 51.735994,50.515799 55.504992,50.515799 58.570986,47.454749 58.570986,43.683451 58.570986,39.912158 55.504992,36.841105 51.735994,36.841105z M12.265995,36.841105C8.4959993,36.841105 5.4300022,39.912158 5.4300022,43.683451 5.4300022,47.454749 8.4959993,50.515799 12.265995,50.515799 16.034992,50.515799 19.101989,47.454749 19.101988,43.683451 19.101989,39.912158 16.034992,36.841105 12.265995,36.841105z M51.735994,33.439936C57.379988,33.439936 61.973986,38.031514 61.973986,43.683451 61.973986,49.325388 57.379988,53.916964 51.735994,53.916964 46.091,53.916964 41.497004,49.325388 41.497004,43.683451 41.497004,38.031514 46.091,33.439936 51.735994,33.439936z M12.265995,33.439936C17.91099,33.439936 22.503985,38.031514 22.503985,43.683451 22.503985,49.325388 17.91099,53.916964 12.265995,53.916964 6.6210012,53.916964 2.0270061,49.325388 2.0270061,43.683451 2.0270061,38.031514 6.6210012,33.439936 12.265995,33.439936z M51.736364,27.99001C57.075438,27.99001 61.815504,30.489169 63.80953,34.357869 64.241537,35.187588 63.91353,36.217242 63.079519,36.647099 62.829515,36.777054 62.563513,36.837035 62.300508,36.837035 61.6835,36.837035 61.089491,36.497149 60.787489,35.917344 59.390471,33.208254 55.754419,31.398863 51.736364,31.398863 47.718309,31.398863 44.080259,33.208254 42.683239,35.917344 42.254234,36.747065 41.227219,37.076954 40.392208,36.647099 39.557196,36.217242 39.228191,35.187588 39.660198,34.357869 41.656225,30.489169 46.39529,27.99001 51.736364,27.99001z M12.266041,27.99001C17.124197,27.99001 21.540339,30.079308 23.795412,33.438178 23.995418,33.728079 24.177423,34.037976 24.341429,34.357869 24.772443,35.187588 24.443432,36.217242 23.607405,36.647099 22.774379,37.076954 21.745345,36.747065 21.316331,35.917344 21.213328,35.717412 21.098325,35.517478 20.971321,35.327542 19.365269,32.938345 15.947159,31.398863 12.266041,31.398863 8.49792,31.398863 5.0468102,32.988329 3.476759,35.457499 3.3817558,35.607447 3.2937527,35.757397 3.2127514,35.917344 2.9107399,36.507145 2.3157215,36.837035 1.6997013,36.837035 1.4366932,36.837035 1.1696854,36.777054 0.92067719,36.647099 0.08564949,36.217242 -0.24135971,35.187588 0.19065285,34.357869 0.31665802,34.107953 0.45466232,33.868033 0.60666656,33.628113 2.8197384,30.149283 7.2868814,27.99001 12.266041,27.99001z M37.054246,7.3806392C38.27323,7.3606203 39.49996,7.8055718 40.445442,8.7204971 40.704443,8.9704835 40.92145,9.2404877 41.112427,9.5305109L41.382442,9.8504391 46.66036,17.610007 53.772272,16.03014C55.237249,15.71009 56.694231,16.630082 57.021254,18.099968 57.348246,19.559968 56.423239,21.019846 54.955271,21.339775L46.041382,23.329773C45.844393,23.369689 45.646397,23.389706 45.449377,23.389706 44.560411,23.389706 43.7124,22.959677 43.199406,22.199833L39.412466,16.64009 30.18959,26.179587 35.789495,31.349215C36.629512,32.129199,36.895499,33.349101,36.452512,34.39909L31.459563,46.318453 34.052517,50.208125C34.885515,51.458056 34.548513,53.15803 33.297552,53.98794 32.833538,54.29798 32.308551,54.447997 31.790552,54.447997 30.910559,54.447997 30.047593,54.01797 29.522575,53.227973L26.120639,48.128287C25.613627,47.368323,25.522625,46.408415,25.874641,45.568499L30.694558,34.059144 23.013654,26.95945 22.896682,26.869488 22.837661,26.799548 22.64168,26.619503C22.296683,26.299574 22.064691,25.909583 21.92468,25.489563 21.090705,23.749672 21.361697,21.599769 22.782669,20.129882L33.709535,8.8305988C34.624028,7.8856454,35.835263,7.4006571,37.054246,7.3806392z M46.321495,0C49.268774,0 51.658001,2.3902144 51.658001,5.3404782 51.658001,8.280742 49.268774,10.670956 46.321495,10.670956 43.375217,10.670956 40.985991,8.280742 40.985991,5.3404782 40.985991,2.3902144 43.375217,0 46.321495,0z"
+                                                      Fill="{Binding Bikes,
+                                                                     Converter={StaticResource StockToFillConverter}}"
+                                                      Stretch="Uniform"
+                                                      UseLayoutRounding="False">
+
+                                                    <Path.RenderTransform>
+                                                        <TransformGroup>
+                                                            <RotateTransform Angle="0" />
+                                                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                                                        </TransformGroup>
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                                <TextBlock Style="{StaticResource MapItemStyle}" Text="{Binding Bikes}" />
+
+                                                <Path Width="24"
+                                                      Height="24"
+                                                      Margin="0,0,0,0"
+                                                      Data="M26.792025,19.450216L26.792025,30.175646 34.421051,30.175646C36.416962,30.175646 37.936565,29.686045 38.984768,28.705542 40.034172,27.725039 40.557674,26.426836 40.557674,24.800631 40.557674,23.330526 40.073273,22.072723 39.103271,21.021919 38.131966,19.972517 36.380558,19.450216 33.84285,19.450216z M20.339001,14.1L34.999153,14.1C39.17757,14.1 42.277882,15.153403 44.297291,17.26021 46.316898,19.367016 47.326,21.852623 47.326,24.72113 47.326,27.98934 46.230896,30.640448 44.04599,32.667854 41.861179,34.69516 39.090172,35.70816 35.732159,35.70816L26.792025,35.70816 26.792025,49.897003 20.339001,49.897003z M31.998899,6.6041298C17.975355,6.6041298 6.6042705,17.976601 6.6042709,32 6.6042705,46.026001 17.975355,57.3918 31.998899,57.3918 46.02224,57.3918 57.393478,46.026001 57.393478,32 57.393478,17.976601 46.02224,6.6041298 31.998899,6.6041298z M31.998899,0C49.670853,0 63.998997,14.3293 63.998997,32 63.998997,49.6744 49.670853,64 31.998899,64 14.328145,64 0,49.6744 0,32 0,14.3293 14.328145,0 31.998899,0z"
+                                                      Fill="{Binding Slots,
+                                                                     Converter={StaticResource StockToFillConverter}}"
+                                                      RenderTransformOrigin="0.5,0.5"
+                                                      Stretch="Uniform">
+                                                    <Path.RenderTransform>
+                                                        <TransformGroup>
+                                                            <TransformGroup.Children>
+                                                                <RotateTransform Angle="0" />
+                                                                <ScaleTransform ScaleX="1" ScaleY="1" />
+                                                            </TransformGroup.Children>
+                                                        </TransformGroup>
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                                <TextBlock Style="{StaticResource MapItemStyle}" Text="{Binding Slots}" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                    </Canvas>
+
+                                </Grid>
+
+                                <Grid Visibility="{Binding ItemType,
+                                                           Converter={StaticResource ReverseItemTypeToVisibilityConverter}}"
+                                      maps:MapControl.Location="{Binding Geopoint}"
+                                      maps:MapControl.NormalizedAnchorPoint="{Binding Geopoint.Position}">
+
+                                    <Path x:Name="path"
+                                          Width="25"
+                                          Height="25"
+                                          Margin="0,0,0,0"
+                                          Data="M31.647835,21.819011C37.056774,21.819011 41.4459,26.202763 41.4459,31.610512 41.4459,37.017222 37.056774,41.402012 31.647835,41.402012 26.239018,41.402012 21.859899,37.017222 21.859899,31.610512 21.859899,26.202763 26.239018,21.819011 31.647835,21.819011z M31.648463,11.80599C20.728994,11.80599 11.839426,20.691982 11.839426,31.610973 11.839426,42.532965 20.728994,51.417955 31.648463,51.417955 42.567934,51.417955 51.457502,42.532965 51.457502,31.610973 51.457502,20.691982 42.567934,11.80599 31.648463,11.80599z M29.86855,0L32.798408,0 32.798408,10.187991C43.367895,10.74999,51.90748,18.918984,53.007425,29.330975L53.007425,29.305974 62.666958,29.305974 62.666958,32.240973 53.127401,32.240973 53.130848,32.147326C53.135221,31.969078 53.137421,31.790286 53.137421,31.610973 53.137421,31.822973 53.12742,32.030972 53.11742,32.240973L53.127401,32.240973 53.111229,32.680408C52.572058,43.662609,43.773811,52.452738,32.798408,53.034954L32.798408,62.666946 29.86855,62.666946 29.86855,53.119955C30.07854,53.125956 30.288529,53.129955 30.49852,53.129955 30.798505,53.129955 31.098491,53.093954 31.398476,53.080956 20.016216,52.949205 10.764194,43.978889 10.197059,32.708606L10.17942,32.240973 10.175706,32.104497 10.169507,31.610973C10.169507,31.716973,10.169507,31.821973,10.170757,31.926723L10.175706,32.104497 10.176422,32.161503 10.17942,32.240973 0,32.240973 0,29.305974 10.289501,29.305974C11.379448,18.857984 20.049027,10.63199 30.728508,10.176991 30.648512,10.174992 30.578516,10.163991 30.49852,10.163991 30.288529,10.163991 30.07854,10.166991 29.86855,10.174992z"
+                                          Fill="#FF261DD6"
+                                          RenderTransformOrigin="0.5,0.5"
+                                          Stretch="Uniform">
+                                        <interactivity:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior>
+                                                <media:ControlStoryboardAction Storyboard="{StaticResource CurrentPositionStoryBoard}" />
+                                            </core:EventTriggerBehavior>
+                                        </interactivity:Interaction.Behaviors>
+                                        <Path.RenderTransform>
+                                            <CompositeTransform />
+                                        </Path.RenderTransform>
+                                    </Path>
+
+                                </Grid>
+
+                            </Grid>
+                        </DataTemplate>
+                    </maps:MapItemsControl.ItemTemplate>
+                </maps:MapItemsControl>
+            </maps:MapControl>
+        </Grid>
+    </Grid>
+</Page>

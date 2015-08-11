@@ -1,0 +1,25 @@
+﻿<Application x:Class="Ecobici.WP.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:Ecobici.WP.View.Converters"
+             xmlns:viewModelBase="using:Ecobici.WP.ViewModel.ViewModelBase">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="TemplatesDictionary/EcoBiciDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <viewModelBase:VMLocator x:Key="VmLocator" />
+            <converters:ItemTypeToVisibilityConverter x:Key="ItemTypeToVisibilityConverter" />
+            <converters:NumberToStringConverter x:Key="NumberToStringConverter" />
+            <converters:TimeToColorConverter x:Key="TimeToColorConverter" />
+            <converters:ReverseChronometerTypeToVisibilityConverter x:Key="ReverseChronometerTypeToVisibilityConverter" />
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:TimeToFontWeightConverter x:Key="TimeToFontWeightConverter" />
+            <converters:ChronometerTypeToVisibilityConverter x:Key="ChronometerTypeToVisibilityConverter" />
+            <converters:ChronometerTypeToImageConverter x:Key="ChronometerTypeToImageConverter" />
+            <converters:ReverseItemTypeToVisibilityConverter x:Key="ReverseItemTypeToVisibilityConverter" />
+            <converters:BikesToFillConverter x:Key="StockToFillConverter" />
+            <converters:ChronometerTypeToLabelConverter x:Key="ChronometerTypeToLabelConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

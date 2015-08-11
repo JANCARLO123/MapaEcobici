@@ -1,0 +1,4 @@
+MainPackage=C:\Users\Saturnino\Source\Workspaces\EcoBici\Ecobici.WP\Ecobici.WP\bin\ARM\Release\Ecobici.WP_1.1.0.2_ARM.appx
+SymbolPackage=C:\Users\Saturnino\Source\Workspaces\EcoBici\Ecobici.WP\Ecobici.WP\AppPackages\Ecobici.WP_1.1.0.2_Test\Ecobici.WP_1.1.0.2_ARM.appxsym
+ResourcePack=C:\Users\Saturnino\Source\Workspaces\EcoBici\Ecobici.WP\Ecobici.WP\bin\ARM\Release\Ecobici.WP_1.1.0.2_scale-100.appx
+ResourcePack=C:\Users\Saturnino\Source\Workspaces\EcoBici\Ecobici.WP\Ecobici.WP\bin\ARM\Release\Ecobici.WP_1.1.0.2_scale-140.appx
