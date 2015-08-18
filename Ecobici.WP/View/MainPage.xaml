@@ -69,7 +69,7 @@
                                               Mode=TwoWay}"
                              CenterChanged="MapControl_OnCenterChanged"
                              IsTextScaleFactorEnabled="True"
-                             MapServiceToken="dsw41sCBY0tDtH9n9NFwkQ"
+                             MapServiceToken=""
                              ZoomLevel="{Binding ZoomLevel,
                                                  Mode=TwoWay}">
                 <maps:MapItemsControl ItemsSource="{Binding MapItems}">
